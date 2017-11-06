@@ -70,9 +70,26 @@ CACHE_FNAME = "206_APIsAndDBs_cache.json"
 # NOTE: For example, if the user with the "TedXUM" screen name is 
 # mentioned in the umich timeline, that Twitter user's info should be 
 # in the Users table, etc.
+conn = sqlite3.connect('206_APIsAndDBs.sqlite')
+cur = conn.cursor()
+
+cur.execute('DROP TABLE IF EXISTS Tweets')
+cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_posted TEXT, time_posted TIMESTAMP, retweets INTEGER)')
+#have to change the next line for whatever i call the dictionary
+# for tweet in umsi_tweets: 
+#     cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)',                     
+#             (tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
+#     conn.commit()
 
 
+cur.execute('DROP TABLE IF EXISTS Users')
+cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)')
+# for tweet in umsi_tweets: 
+#     cur.execute('INSERT INTO Users (tweet_id, screen_name, num_favs, description) VALUES (?, ?, ?, ?)',                     
+#             (tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
+conn.commit()
 
+cur.close()
 ## You should load into the Tweets table: 
 # Info about all the tweets (at least 20) that you gather from the 
 # umich timeline.
