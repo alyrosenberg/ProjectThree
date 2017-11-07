@@ -89,8 +89,6 @@ for tweet in umich_tweets:
 	cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)', 
 		(tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
  
-
-
 cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)')
 
@@ -100,14 +98,12 @@ for tweet in umich_tweets:
 
 conn.commit()
 
-
 cur.close()
 ## You should load into the Tweets table: 
 # Info about all the tweets (at least 20) that you gather from the 
 # umich timeline.
 # NOTE: Be careful that you have the correct user ID reference in 
 # the user_id column! See below hints.
-
 
 ## HINT: There's a Tweepy method to get user info, so when you have a 
 ## user id or screenname you can find alllll the info you want about 
