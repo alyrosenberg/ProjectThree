@@ -84,19 +84,22 @@ cur = conn.cursor()
 
 cur.execute('DROP TABLE IF EXISTS Tweets')
 cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_posted TEXT, time_posted TIMESTAMP, retweets INTEGER)')
-#have to change the next line for whatever i call the dictionary
-# for tweet in umsi_tweets: 
-#     cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)',                     
-#             (tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
-#     conn.commit()
+
+for tweet in umich_tweets: 
+	cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)', 
+		(tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
+ 
 
 
 cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)')
-# for tweet in umsi_tweets: 
-#     cur.execute('INSERT INTO Users (tweet_id, screen_name, num_favs, description) VALUES (?, ?, ?, ?)',                     
-#             (tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
+
+for tweet in umich_tweets: 
+	cur.execute('INSERT INTO Users (user_id, screen_name, num_favs, description) VALUES (?, ?, ?, ?)',                     
+		(tweet['user']['id'],tweet['user']['screen_name'], tweet['user']['favourites_count'], tweet['user']['description']))
+
 conn.commit()
+
 
 cur.close()
 ## You should load into the Tweets table: 
