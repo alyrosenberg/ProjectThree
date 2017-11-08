@@ -97,7 +97,6 @@ for tweet in umich_tweets:
 		(tweet['user']['id'],tweet['user']['screen_name'], tweet['user']['favourites_count'], tweet['user']['description']))
 
 conn.commit()
-
 cur.close()
 ## You should load into the Tweets table: 
 # Info about all the tweets (at least 20) that you gather from the 
