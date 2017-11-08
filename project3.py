@@ -97,7 +97,7 @@ for tweet in umich_tweets:
 		(tweet['user']['id'],tweet['user']['screen_name'], tweet['user']['favourites_count'], tweet['user']['description']))
 
 conn.commit()
-cur.close()
+
 ## You should load into the Tweets table: 
 # Info about all the tweets (at least 20) that you gather from the 
 # umich timeline.
@@ -160,7 +160,7 @@ joined_data2 = True
 ### IMPORTANT: MAKE SURE TO CLOSE YOUR DATABASE CONNECTION AT THE END 
 ### OF THE FILE HERE SO YOU DO NOT LOCK YOUR DATABASE (it's fixable, 
 ### but it's a pain). ###
-
+cur.close()
 ###### TESTS APPEAR BELOW THIS LINE ######
 ###### Note that the tests are necessary to pass, but not sufficient -- 
 ###### must make sure you've followed the instructions accurately! 
@@ -258,7 +258,6 @@ class Task3(unittest.TestCase):
 		self.assertEqual(type(favorites[0]),type(""),"Testing that at least one of the elements in the favorites list is a string, not a tuple or anything else")
 	def test_joined_result(self):
 		self.assertEqual(type(joined_data[0]),type(("hi","bye")),"Testing that an element in joined_result is a tuple")
-
 
 
 if __name__ == "__main__":
