@@ -16,6 +16,7 @@ import tweepy
 import twitter_info # same deal as always...
 import json
 import sqlite3
+import pprint
 
 ## Your name: Alyson Rosenberg
 ## The names of anyone you worked with on this project:
@@ -30,6 +31,7 @@ access_token = twitter_info.access_token
 access_token_secret = twitter_info.access_token_secret
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
+pp = pprint.PrettyPrinter(indent=4)
 
 # Set up library to grab stuff from twitter with your authentication, and 
 # return it in a JSON format 
@@ -46,8 +48,11 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 ## CACHE_FNAME variable for you for the cache file name, but you must 
 ## write the rest of the code in this file.
 
+
+#this is the file name for the cache
 CACHE_FNAME = "206_APIsAndDBs_cache.json"
 # Put the rest of your caching setup here:
+#Load cache file if it exists
 try:
     cache_file = open(CACHE_FNAME,'r')
     cache_contents = cache_file.read()
@@ -57,6 +62,8 @@ except:
     CACHE_DICTION = {}
 
 # Define your function get_user_tweets here:
+#get tweets for my specific user handle from Twitter
+#look in cache first to see if its already there
 def get_user_tweets(user_handle):
 	if user_handle in CACHE_DICTION:
 		public_tweets = CACHE_DICTION[user_handle]
@@ -70,6 +77,7 @@ def get_user_tweets(user_handle):
 
 # Write an invocation to the function for the "umich" user timeline and 
 # save the result in a variable called umich_tweets:
+#call get_user_tweet function with a specific handle:umich
 umich_tweets = get_user_tweets("umich") 
 
 ## Task 2 - Creating database and loading data into database
@@ -79,23 +87,33 @@ umich_tweets = get_user_tweets("umich")
 # NOTE: For example, if the user with the "TedXUM" screen name is 
 # mentioned in the umich timeline, that Twitter user's info should be 
 # in the Users table, etc.
+
+#create connection to local SQLite database
 conn = sqlite3.connect('206_APIsAndDBs.sqlite')
 cur = conn.cursor()
 
+#Dropping Tweets table if it exists then initilizing Tweets table
 cur.execute('DROP TABLE IF EXISTS Tweets')
-cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_posted TEXT, time_posted TIMESTAMP, retweets INTEGER)')
+cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_posted TEXT, time_posted DATETIME, retweets INTEGER)')
 
+#Populate the Tweet table while also collecting User Ids
+userids = []
 for tweet in umich_tweets: 
+	userids.append(tweet['user']['id_str'])
 	cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)', 
 		(tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
- 
+
+#Dropping Users table if it exists then initilizing Users table
 cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)')
 
-for tweet in umich_tweets: 
+#populates the users table
+for userid in set(userids): 
+	userinfo = api.get_user(user_id= userid)
 	cur.execute('INSERT INTO Users (user_id, screen_name, num_favs, description) VALUES (?, ?, ?, ?)',                     
-		(tweet['user']['id'],tweet['user']['screen_name'], tweet['user']['favourites_count'], tweet['user']['description']))
+		(userinfo['id'],userinfo['screen_name'], userinfo['favourites_count'], userinfo['description']))
 
+#Insures all SQL commands are executed on database
 conn.commit()
 
 ## You should load into the Tweets table: 
@@ -121,45 +139,54 @@ conn.commit()
 
 # Make a query to select all of the records in the Users database. 
 # Save the list of tuples in a variable called users_info.
-
-users_info = True
+cur.execute('SELECT * FROM Users')
+#fetall returns list of tuples where each tuple is a database table row
+users_info= cur.fetchall()
 
 # Make a query to select all of the user screen names from the database. 
 # Save a resulting list of strings (NOT tuples, the strings inside them!) 
 # in the variable screen_names. HINT: a list comprehension will make 
 # this easier to complete! 
-screen_names = True
-
+cur.execute('SELECT screen_name FROM Users')
+#every returned row only contains one item, which is the screename
+screen_names = [row[0] for row in cur.fetchall()]
 
 # Make a query to select all of the tweets (full rows of tweet information)
 # that have been retweeted more than 10 times. Save the result 
 # (a list of tuples, or an empty list) in a variable called retweets.
-retweets = True
-
+cur.execute('SELECT * FROM Tweets WHERE retweets > 10')
+#fetall returns list of tuples where each tuple is a database table row
+retweets = cur.fetchall()
 
 # Make a query to select all the descriptions (descriptions only) of 
 # the users who have favorited more than 500 tweets. Access all those 
 # strings, and save them in a variable called favorites, 
 # which should ultimately be a list of strings.
-favorites = True
-
+cur.execute('SELECT description from Users WHERE num_favs > 500')
+#every returned row only contains one item, which is the description
+favorites = [row[0] for row in cur.fetchall()]
 
 # Make a query using an INNER JOIN to get a list of tuples with 2 
 # elements in each tuple: the user screenname and the text of the 
 # tweet. Save the resulting list of tuples in a variable called joined_data2.
-joined_data = True
+cur.execute('SELECT screen_name, text FROM Tweets JOIN Users ON (user_posted=user_id)')
+#fetall returns list of tuples where each tuple is a database table row
+joined_data = cur.fetchall()
 
 # Make a query using an INNER JOIN to get a list of tuples with 2 
 # elements in each tuple: the user screenname and the text of the 
 # tweet in descending order based on retweets. Save the resulting 
 # list of tuples in a variable called joined_data2.
-
-joined_data2 = True
+cur.execute('SELECT screen_name, text FROM Tweets JOIN Users ON (user_posted=user_id) ORDER BY retweets DESC')
+#fetall returns list of tuples where each tuple is a database table row
+joined_data2 = cur.fetchall()
 
 
 ### IMPORTANT: MAKE SURE TO CLOSE YOUR DATABASE CONNECTION AT THE END 
 ### OF THE FILE HERE SO YOU DO NOT LOCK YOUR DATABASE (it's fixable, 
 ### but it's a pain). ###
+
+#closes database
 cur.close()
 ###### TESTS APPEAR BELOW THIS LINE ######
 ###### Note that the tests are necessary to pass, but not sufficient -- 
