@@ -99,7 +99,9 @@ cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY, text TEXT, user_post
 #Populate the Tweet table while also collecting User Ids
 userids = []
 for tweet in umich_tweets: 
-	userids.append(tweet['user']['id_str'])
+	userids.append(int(tweet['user']['id_str'])) #cast all IDs to integer
+	for user in tweet['entities']['user_mentions']:  #this gets all of mentioned users
+		userids.append(int(user['id'])) #casts all IDs to integers
 	cur.execute('INSERT INTO Tweets (tweet_id, text, user_posted, time_posted, retweets) VALUES (?, ?, ?, ?, ?)', 
 		(tweet['id_str'],tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']))
 
