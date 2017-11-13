@@ -3,7 +3,6 @@
 ## Building on HW7, HW8 (and some previous material!)
 
 ##THIS STARTER CODE DOES NOT RUN!!
-
 ##OBJECTIVE:
 ## In this assignment you will be creating database and loading data 
 ## into database.  You will also be performing SQL queries on the data.
@@ -40,7 +39,6 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 ##### END TWEEPY SETUP CODE
 
 ## Task 1 - Gathering data
-
 ## Define a function called get_user_tweets that gets at least 20 Tweets 
 ## from a specific Twitter user's timeline, and uses caching. The function 
 ## should return a Python object representing the data that was retrieved 
@@ -133,7 +131,6 @@ conn.commit()
 ## text to find out which they are! Do some nested data investigation 
 ## on a dictionary that represents 1 tweet to see it!
 
-
 ## Task 3 - Making queries, saving data, fetching data
 
 # All of the following sub-tasks require writing SQL statements 
@@ -182,7 +179,6 @@ joined_data = cur.fetchall()
 cur.execute('SELECT screen_name, text FROM Tweets JOIN Users ON (user_posted=user_id) ORDER BY retweets DESC')
 #fetall returns list of tuples where each tuple is a database table row
 joined_data2 = cur.fetchall()
-
 
 ### IMPORTANT: MAKE SURE TO CLOSE YOUR DATABASE CONNECTION AT THE END 
 ### OF THE FILE HERE SO YOU DO NOT LOCK YOUR DATABASE (it's fixable, 
